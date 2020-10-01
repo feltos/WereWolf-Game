@@ -9,6 +9,8 @@ public class PlayerNetwork : MonoBehaviour
         Instance = this;
 
         name = "Player#" + Random.Range(1000,9999);
+       
+        PhotonNetwork.playerName = name;
     }
 
 }
