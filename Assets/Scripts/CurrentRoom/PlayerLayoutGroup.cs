@@ -16,8 +16,18 @@ public class PlayerLayoutGroup : MonoBehaviour
         get { return _playerListings; }
     }
 
+    private void OnMasterClientSwitched(PhotonPlayer newMasterClient)
+    {
+        PhotonNetwork.LeaveRoom();
+    }
+
     private void OnJoinedRoom()
     {
+        foreach(Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+
         MainCanvasManager.Instance.CurrentRoomCanvas.transform.SetAsLastSibling();
 
         PhotonPlayer[] photonPlayers = PhotonNetwork.playerList;
@@ -27,6 +37,7 @@ public class PlayerLayoutGroup : MonoBehaviour
         }
     }
 
+    //Call by photon when whenever join a room
     private void OnPhotonPlayerConnected(PhotonPlayer photonPlayer)
     {
         PlayerJoinedRoom(photonPlayer);
@@ -63,6 +74,26 @@ public class PlayerLayoutGroup : MonoBehaviour
             PlayerListings.RemoveAt(index);
         }
     }
+    
+    public void OnClickRoomState()
+    {
+        if (!PhotonNetwork.isMasterClient)
+        {
+            return;
+        }
 
+        PhotonNetwork.room.IsOpen = !PhotonNetwork.room.IsOpen;
+        PhotonNetwork.room.IsVisible = PhotonNetwork.room.IsOpen;
+    }
 
+    public void OnClickLeaveRoom()
+    {       
+        PhotonNetwork.LeaveRoom();
+
+        for (int index = 0; index < PlayerListings.Count; index++)
+        {
+            Destroy(PlayerListings[index].gameObject);
+            PlayerListings.RemoveAt(index);
+        }
+    }
 }

@@ -17,6 +17,7 @@ public class PlayerListing : MonoBehaviour
         //InputField inputPlayerField = inputPlayerFieldEmptyObject.GetComponent<InputField>();
         //PhotonPlayer = photonPlayer;
         //photonPlayer.NickName = inputPlayerField.text;
+        PhotonPlayer = photonPlayer;
         PlayerName.text = photonPlayer.NickName;
         Debug.Log(PlayerName.text);
     }

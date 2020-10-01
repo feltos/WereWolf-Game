@@ -22,6 +22,12 @@ public class LobbyNetwork : PunBehaviour
     public override void OnJoinedLobby()
     {
         Debug.Log("Joined Lobby");
+
+        if (!PhotonNetwork.inRoom)
+        {
+            MainCanvasManager.Instance.LobbyCanvas.transform.SetAsLastSibling();
+
+        }
     }
 
 }
