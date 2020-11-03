@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerMovement : Photon.MonoBehaviour
 {
-    float moveSpeed = 100f;
+    float moveSpeed = 10f;
     float rotateSpeed = 500f;
     private Vector3 targetPosition;
     private Quaternion targetRotation;

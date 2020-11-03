@@ -1,12 +1,16 @@
 ﻿using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Video;
+
 public class PlayerNetwork : MonoBehaviour
 {
     public static PlayerNetwork Instance;
     public string playerName { get; private set; }
     private PhotonView photonView;
     private int playersIngame = 0;
+
+    private PlayerMovement currentPlayer;
     private void Awake()
     {
         Instance = this;
@@ -38,13 +42,13 @@ public class PlayerNetwork : MonoBehaviour
 
     private void MasterLoadedGame()
     {
-        photonView.RPC("RPC_LoadedGameScene", PhotonTargets.MasterClient);
+        photonView.RPC("RPC_LoadedGameScene", PhotonTargets.MasterClient,PhotonNetwork.player);
         photonView.RPC("RPC_LoadGameOthers", PhotonTargets.Others);
     }
 
     private void NonMasterLoadedGame()
     {
-        photonView.RPC("RPC_LoadedGameScene", PhotonTargets.MasterClient);
+        photonView.RPC("RPC_LoadedGameScene", PhotonTargets.MasterClient,PhotonNetwork.player);
     }
 
     [PunRPC]
@@ -54,8 +58,10 @@ public class PlayerNetwork : MonoBehaviour
     }
 
     [PunRPC]
-    private void RPC_LoadedGameScene()
+    private void RPC_LoadedGameScene(PhotonPlayer photonPlayer)
     {
+        PlayerManagement.Instance.AddPlayerStats(photonPlayer);
+
         playersIngame++;
         if(playersIngame == PhotonNetwork.playerList.Length)
         {
@@ -64,10 +70,29 @@ public class PlayerNetwork : MonoBehaviour
         }
     }
 
+    public void NewHealth(PhotonPlayer PhotonPlayer, int health)
+    {
+        photonView.RPC("RPC_NewHealth", PhotonPlayer, health);
+    }
+
+    [PunRPC]
+    private void RPC_NewHealth(int health)
+    {
+        if(currentPlayer == null)
+        {
+            return;
+        }
+        if(health <= 0)
+        {
+            PhotonNetwork.Destroy(currentPlayer.gameObject);
+        }
+    }
+
     [PunRPC]
     private void RPC_CreatePlayer()
     {
         float randomValue = Random.Range(0f, 5f);
-        PhotonNetwork.Instantiate(Path.Combine("Prefabs", "NewPlayer"), Vector3.up * randomValue, Quaternion.identity, 0);
+        GameObject obj = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "NewPlayer"), Vector3.up * randomValue, Quaternion.identity, 0);
+        currentPlayer = obj.GetComponent<PlayerMovement>();
     }
 }
