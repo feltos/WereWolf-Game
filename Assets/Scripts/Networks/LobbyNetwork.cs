@@ -8,8 +8,12 @@ public class LobbyNetwork : PunBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        print("connecting to server...");
-        PhotonNetwork.ConnectUsingSettings("0.0.0");
+        if (!PhotonNetwork.connected)
+        {
+            print("connecting to server...");
+            PhotonNetwork.ConnectUsingSettings("0.0.0");
+        }
+
     }
     public override void OnConnectedToMaster()
     {

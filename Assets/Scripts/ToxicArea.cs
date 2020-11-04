@@ -6,20 +6,10 @@ public class ToxicArea : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Enter method caca");
-        if (!PhotonNetwork.isMasterClient)
-        {
-            Debug.Log("Enter method");
-            return;
-        }
-
-        
-
         PhotonView photonView = other.GetComponent<PhotonView>();
-        if(photonView != null)
+        if(photonView != null && photonView.isMine)
         {
             PlayerManagement.Instance.ModifyHealth(photonView.owner, -10);
-            Debug.Log("HIT");
         }
     }
 
