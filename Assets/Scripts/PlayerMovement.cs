@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlayerMovement : Photon.MonoBehaviour
 {
@@ -11,10 +12,12 @@ public class PlayerMovement : Photon.MonoBehaviour
     public bool UseTransformView = true;
     private Animator animator;
     private PhotonView PhotonView;
+    Rigidbody body;
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
         animator = GetComponent<Animator>();
+        body = GetComponent<Rigidbody>();
     }
     void Update()
     {

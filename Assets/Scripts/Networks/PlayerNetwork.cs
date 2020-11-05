@@ -92,7 +92,7 @@ public class PlayerNetwork : MonoBehaviour
     private void RPC_CreatePlayer()
     {
         float randomValue = Random.Range(0f, 5f);
-        GameObject obj = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "unitychan"), Vector3.up * randomValue, Quaternion.identity, 0);
+        GameObject obj = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "unitychan"),new Vector3(0.0f,0.0f,0.0f), Quaternion.identity, 0);
         currentPlayer = obj.GetComponent<PlayerMovement>();
     }
 }
