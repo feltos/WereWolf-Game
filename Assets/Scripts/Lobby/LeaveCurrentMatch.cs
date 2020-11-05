@@ -9,7 +9,7 @@ public class LeaveCurrentMatch : MonoBehaviour
 
     void Start()
     {
-        
+        canvas.enabled = false;
     }
     void Update()
     {

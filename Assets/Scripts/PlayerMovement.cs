@@ -4,17 +4,21 @@ using UnityEngine;
 
 public class PlayerMovement : Photon.MonoBehaviour
 {
-    float moveSpeed = 10f;
+    float moveSpeed = 5f;
     float rotateSpeed = 500f;
     private Vector3 targetPosition;
     private Quaternion targetRotation;
+    public bool UseTransformView = true;
+    private Animator animator;
+    private PhotonView PhotonView;
     private void Awake()
     {
-        
+        PhotonView = GetComponent<PhotonView>();
+        animator = GetComponent<Animator>();
     }
     void Update()
     {
-        if (photonView.isMine)
+        if (PhotonView.isMine)
         {
             CheckInput();
         }
@@ -26,6 +30,11 @@ public class PlayerMovement : Photon.MonoBehaviour
 
     private void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
+        if (UseTransformView)
+        {
+            return;
+        }
+
         if (stream.isWriting)
         {
             stream.SendNext(transform.position);
@@ -40,6 +49,10 @@ public class PlayerMovement : Photon.MonoBehaviour
 
     private void SmoothMove()
     {
+        if (UseTransformView)
+        {
+            return;
+        }
         transform.position = Vector3.Lerp(transform.position, targetPosition, 0.25f);
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 500 * Time.deltaTime);
     }
@@ -50,6 +63,13 @@ public class PlayerMovement : Photon.MonoBehaviour
 
         transform.position += transform.forward * (vertical * moveSpeed * Time.deltaTime);
         transform.Rotate(new Vector3(0, horizontal * rotateSpeed * Time.deltaTime, 0));
+
+        animator.SetFloat("Input", vertical);
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            animator.SetTrigger("Taunt");
+        }
     }
 
 
