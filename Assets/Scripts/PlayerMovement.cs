@@ -13,6 +13,7 @@ public class PlayerMovement : Photon.MonoBehaviour
     private Animator animator;
     private PhotonView PhotonView;
     Rigidbody body;
+    public int id;
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();

@@ -9,7 +9,6 @@ public class PlayerNetwork : MonoBehaviour
     public string playerName { get; private set; }
     private PhotonView photonView;
     private int playersIngame = 0;
-
     private PlayerMovement currentPlayer;
     private void Awake()
     {
@@ -94,5 +93,7 @@ public class PlayerNetwork : MonoBehaviour
         float randomValue = Random.Range(0f, 5f);
         GameObject obj = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "unitychan"),new Vector3(0.0f,0.0f,0.0f), Quaternion.identity, 0);
         currentPlayer = obj.GetComponent<PlayerMovement>();
+        currentPlayer.id = Random.Range(1, 2);
+        Debug.Log(currentPlayer.id);
     }
 }
