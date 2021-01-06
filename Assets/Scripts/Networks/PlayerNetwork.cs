@@ -59,31 +59,12 @@ public class PlayerNetwork : MonoBehaviour
     [PunRPC]
     private void RPC_LoadedGameScene(PhotonPlayer photonPlayer)
     {
-        PlayerManagement.Instance.AddPlayerStats(photonPlayer);
 
         playersIngame++;
         if(playersIngame == PhotonNetwork.playerList.Length)
         {
             Debug.Log("All players are in the game scene");
             photonView.RPC("RPC_CreatePlayer", PhotonTargets.All);
-        }
-    }
-
-    public void NewHealth(PhotonPlayer PhotonPlayer, int health)
-    {
-        photonView.RPC("RPC_NewHealth", PhotonPlayer, health);
-    }
-
-    [PunRPC]
-    private void RPC_NewHealth(int health)
-    {
-        if(currentPlayer == null)
-        {
-            return;
-        }
-        if(health <= 0)
-        {
-            PhotonNetwork.Destroy(currentPlayer.gameObject);
         }
     }
 
