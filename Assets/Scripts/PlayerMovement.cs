@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 public class PlayerMovement : Photon.MonoBehaviour
 {
     float moveSpeed = 5f;
-    float rotateSpeed = 500f;
+    float rotateSpeed = 300f;
     private Vector3 targetPosition;
     private Quaternion targetRotation;
     public bool UseTransformView = true;
@@ -62,13 +62,9 @@ public class PlayerMovement : Photon.MonoBehaviour
     }
     private void CheckInput()
     {
-        float vertical = Input.GetAxis("Vertical");
-        float horizontal = Input.GetAxis("Horizontal");
 
-        transform.position += transform.forward * (vertical * moveSpeed * Time.deltaTime);
+        float horizontal = Input.GetAxis("Mouse X");
         transform.Rotate(new Vector3(0, horizontal * rotateSpeed * Time.deltaTime, 0));
-
-        animator.SetFloat("Input", vertical);
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
