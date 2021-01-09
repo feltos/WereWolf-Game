@@ -64,6 +64,7 @@ public class PlayerLayoutGroup : MonoBehaviour
         playerListing.ApplyPhotonPlayer(photonPlayer);
 
         PlayerListings.Add(playerListing);
+        
     }
     private void PlayerLeftRoom(PhotonPlayer photonPlayer)
     {

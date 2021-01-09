@@ -7,6 +7,7 @@ public class PlayerListing : MonoBehaviour
     public PhotonPlayer PhotonPlayer { get; private set; }
     [SerializeField]
     private Text _playerName;
+    int playerSize;
     private Text PlayerName
     {
         get { return _playerName; }
@@ -19,6 +20,6 @@ public class PlayerListing : MonoBehaviour
         //photonPlayer.NickName = inputPlayerField.text;
         PhotonPlayer = photonPlayer;
         PlayerName.text = photonPlayer.NickName;
-        Debug.Log(PlayerName.text);
+        Debug.Log(PlayerName.text);       
     }
 }

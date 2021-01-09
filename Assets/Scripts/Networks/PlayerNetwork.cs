@@ -1,4 +1,4 @@
-﻿using Boo.Lang;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,10 +11,11 @@ public class PlayerNetwork : MonoBehaviour
     private PhotonView photonView;
     private int playersIngame = 0;
     private PlayerMovement currentPlayer;
-    [SerializeField]List<GameObject> socles = new List<GameObject>();
+    SoclesManager soclesManager;
+    List<GameObject> socles;
+    public int id;
     private void Awake()
     {
-
         Instance = this;
         photonView = GetComponent<PhotonView>();
         name = "Player#" + Random.Range(1000,9999);
@@ -31,11 +32,8 @@ public class PlayerNetwork : MonoBehaviour
     {
         if(scene.name == "Game")
         {
-            foreach(GameObject socle in GameObject.FindGameObjectsWithTag("Socle"))
-            {
-                socles.Add(socle);
-            }
-
+            soclesManager = GameObject.FindGameObjectWithTag("SoclesManager").GetComponent<SoclesManager>();
+            socles = soclesManager.Socles;
             if (PhotonNetwork.isMasterClient)
             {
                 MasterLoadedGame();
@@ -67,7 +65,6 @@ public class PlayerNetwork : MonoBehaviour
     [PunRPC]
     private void RPC_LoadedGameScene(PhotonPlayer photonPlayer)
     {
-
         playersIngame++;
         if(playersIngame == PhotonNetwork.playerList.Length)
         {
@@ -79,14 +76,7 @@ public class PlayerNetwork : MonoBehaviour
     [PunRPC]
     private void RPC_CreatePlayer()
     {
-        Debug.Log(socles.Count);
-        int randomPos = Random.Range(0, socles.Count);
-        GameObject obj = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "unitychan"),socles[randomPos].transform.position + new Vector3(0,1,0), Quaternion.identity, 0);
-        socles.RemoveAt(randomPos);
-        Debug.Log(socles.Count);
-
-        currentPlayer = obj.GetComponent<PlayerMovement>();
-        currentPlayer.id = Random.Range(1, 2);
-        //Debug.Log(currentPlayer.id);
+        int rand = Random.Range(0, socles.Count);
+        GameObject obj = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "unitychan"),socles[rand].transform.position + new Vector3(0,1,0), Quaternion.identity, 0);
     }
 }
