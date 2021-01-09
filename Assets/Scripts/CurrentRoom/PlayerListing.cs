@@ -20,6 +20,5 @@ public class PlayerListing : MonoBehaviour
         //photonPlayer.NickName = inputPlayerField.text;
         PhotonPlayer = photonPlayer;
         PlayerName.text = photonPlayer.NickName;
-        Debug.Log(PlayerName.text);       
     }
 }

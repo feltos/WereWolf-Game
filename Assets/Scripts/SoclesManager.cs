@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class SoclesManager : MonoBehaviour
 {
-    [SerializeField]List<GameObject> socles = new List<GameObject>();
+    [SerializeField] GameObject[] socles;
 
-    public List<GameObject> Socles { get => socles; set => socles = value; }
-    // Start is called before the first frame update
+    public GameObject[] Socles { get => socles; set => socles = value; }
 }
