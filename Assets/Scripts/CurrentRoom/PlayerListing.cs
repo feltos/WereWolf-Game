@@ -8,17 +8,9 @@ public class PlayerListing : MonoBehaviour
     [SerializeField]
     private Text _playerName;
     int playerSize;
-    private Text PlayerName
-    {
-        get { return _playerName; }
-    }
+
     public void ApplyPhotonPlayer(PhotonPlayer photonPlayer)
-    {
-        //GameObject inputPlayerFieldEmptyObject = GameObject.Find("Pseudo");
-        //InputField inputPlayerField = inputPlayerFieldEmptyObject.GetComponent<InputField>();
-        //PhotonPlayer = photonPlayer;
-        //photonPlayer.NickName = inputPlayerField.text;
-        PhotonPlayer = photonPlayer;
-        PlayerName.text = photonPlayer.NickName;
+    { 
+        _playerName.text = photonPlayer.NickName;
     }
 }

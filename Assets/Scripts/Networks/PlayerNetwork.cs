@@ -3,6 +3,8 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
+using UnityEngine.UI;
+
 
 public class PlayerNetwork : MonoBehaviour
 {
@@ -16,13 +18,14 @@ public class PlayerNetwork : MonoBehaviour
     SoclesManager soclesManager;
     GameObject[] socles;
     private int id;
+    bool inLobby = false;
     private void Awake()
     {
         Instance = this;
         photonView = GetComponent<PhotonView>();
         name = "Player#" + Random.Range(1000,9999);
        
-        PhotonNetwork.playerName = name;
+        PhotonNetwork.player.NickName = name;
 
         PhotonNetwork.sendRate = 60;
         PhotonNetwork.sendRateOnSerialize = 30;
@@ -33,10 +36,15 @@ public class PlayerNetwork : MonoBehaviour
     private void OnSceneFinishedLoading(Scene scene, LoadSceneMode mode)
     {
  
+        if(scene.name == "Lobby")
+        {
+            inLobby = true;
+        }
         if(scene.name == "Game")
         {
             soclesManager = GameObject.FindGameObjectWithTag("SoclesManager").GetComponent<SoclesManager>();
             socles = soclesManager.Socles;
+            inLobby = false;
 
             if (PhotonNetwork.isMasterClient)
             {         
@@ -81,5 +89,16 @@ public class PlayerNetwork : MonoBehaviour
     {
         id = PhotonNetwork.player.ID -1;
         GameObject obj = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "unitychan"), socles[id].transform.position + new Vector3(0, 1, 0), Quaternion.identity, 0);        
+    }
+
+    void Update()
+    {
+        if (inLobby)
+        {
+            Debug.Log("test");
+            GameObject inputPlayerFieldEmptyObject = GameObject.Find("Pseudo");
+            InputField inputPlayerField = inputPlayerFieldEmptyObject.GetComponent<InputField>();
+            PhotonNetwork.player.NickName = inputPlayerField.text;
+        }
     }
 }
