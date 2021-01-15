@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,11 +15,18 @@ public class PlayerMovement : Photon.MonoBehaviour
     private PhotonView PhotonView;
     Rigidbody body;
     public int id;
+    Camera camera;
+    RaycastHit hit;
+    bool voted = false;
+    PlayerManagement lastVoted;
+    PlayerManagement actualVoted;
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
         animator = GetComponent<Animator>();
         body = GetComponent<Rigidbody>();
+        camera = this.GetComponentInChildren<Camera>();
+        
     }
     void Update()
     {
@@ -62,13 +70,39 @@ public class PlayerMovement : Photon.MonoBehaviour
     }
     private void CheckInput()
     {
-
         float horizontal = Input.GetAxis("Mouse X");
         transform.Rotate(new Vector3(0, horizontal * rotateSpeed * Time.deltaTime, 0));
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
             animator.SetTrigger("Taunt");
+        }
+
+        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+        if(Physics.Raycast(ray, out hit))
+        {
+            if (hit.collider.tag == "Player")
+            {         
+                if (Input.GetMouseButtonDown(0))
+                {
+                    actualVoted = hit.collider.gameObject.GetComponent<PlayerManagement>();
+
+                    //use on first vote;
+                    if(lastVoted == null)
+                    {
+                        Debug.Log("no vote");
+                        lastVoted = actualVoted;
+                        actualVoted.UpNmbOfVotes();
+                    }
+
+                    if(lastVoted != actualVoted)
+                    {
+                        lastVoted.MinusNmbOfVotes();
+                        actualVoted.UpNmbOfVotes();
+                        lastVoted = actualVoted;
+                    }
+                }
+            }
         }
     }
 

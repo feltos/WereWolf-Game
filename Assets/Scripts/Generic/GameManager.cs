@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     public GameObject[] players;
     bool allPlayerHere = false;
 
-    int werewolf = 2;
+    int werewolf;
 
     void Awake()
     {
@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(3);
         players = GameObject.FindGameObjectsWithTag("Player");
 
-        if(players.Length < 5)
+        if(players.Length <= 5)
         {
             werewolf = 1;
         }
