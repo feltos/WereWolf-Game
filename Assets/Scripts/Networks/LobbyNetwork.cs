@@ -20,7 +20,6 @@ public class LobbyNetwork : PunBehaviour
         print("Connected to Master");
         PhotonNetwork.automaticallySyncScene = false;
 
-        PhotonNetwork.playerName = PlayerNetwork.Instance.playerName;
         PhotonNetwork.JoinLobby(TypedLobby.Default);
     }
 

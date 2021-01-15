@@ -30,6 +30,7 @@ public class RoomLayoutGroup : MonoBehaviour
 
     private void RoomReceived(RoomInfo room)
     {
+        
         int index = RoomListingButtons.FindIndex(x => x.RoomName == room.Name);
 
         if(index == -1)

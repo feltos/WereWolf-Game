@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Socle
   - SoclesManager
+  - GameManager
   layers:
   - Default
   - TransparentFX

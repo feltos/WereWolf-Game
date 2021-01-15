@@ -9,16 +9,17 @@ using UnityEngine.UI;
 public class PlayerNetwork : MonoBehaviour
 {
     public static PlayerNetwork Instance;
-    public string playerName { get; private set; }
-    public int Id { get => id; set => id = value; }
-
     private PhotonView photonView;
     private int playersIngame = 0;
     private PlayerMovement currentPlayer;
     SoclesManager soclesManager;
     GameObject[] socles;
-    private int id;
+    private int positionId;
+
     bool inLobby = false;
+
+ 
+
     private void Awake()
     {
         Instance = this;
@@ -59,8 +60,8 @@ public class PlayerNetwork : MonoBehaviour
 
     private void MasterLoadedGame()
     {
-        photonView.RPC("RPC_LoadedGameScene", PhotonTargets.MasterClient,PhotonNetwork.player);
-        photonView.RPC("RPC_LoadGameOthers", PhotonTargets.Others);
+       photonView.RPC("RPC_LoadedGameScene", PhotonTargets.MasterClient,PhotonNetwork.player);
+       photonView.RPC("RPC_LoadGameOthers", PhotonTargets.Others);       
     }
 
     private void NonMasterLoadedGame()
@@ -72,6 +73,7 @@ public class PlayerNetwork : MonoBehaviour
     private void RPC_LoadedGameScene(PhotonPlayer photonPlayer)
     {
         playersIngame++;
+        
         if(playersIngame == PhotonNetwork.playerList.Length)
         {
             photonView.RPC("RPC_CreatePlayer", PhotonTargets.All);
@@ -87,8 +89,8 @@ public class PlayerNetwork : MonoBehaviour
     [PunRPC]
     private void RPC_CreatePlayer()
     {
-        id = PhotonNetwork.player.ID -1;
-        GameObject obj = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "unitychan"), socles[id].transform.position + new Vector3(0, 1, 0), Quaternion.identity, 0);        
+        positionId = PhotonNetwork.player.ID -1;
+        GameObject obj = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "unitychan"), socles[positionId].transform.position + new Vector3(0, 1, 0), Quaternion.identity, 0);
     }
 
     void Update()
