@@ -16,6 +16,11 @@ public class PlayerManagement : MonoBehaviour
         PhotonView = GetComponent<PhotonView>();
     }
 
+    void Update()
+    {
+
+    }
+
     public void SetRoleId(int newId)
     {
         roleId = newId;
@@ -31,15 +36,19 @@ public class PlayerManagement : MonoBehaviour
         return nmbOfVotes;
     }
 
+    [PunRPC]
     public void UpNmbOfVotes()
     {
         nmbOfVotes++;
-        nmbOfVotesText.text = nmbOfVotes.ToString();
+        nmbOfVotesText.text = nmbOfVotes.ToString();      
     }
 
+    [PunRPC]
     public void MinusNmbOfVotes()
     {
         nmbOfVotes--;
         nmbOfVotesText.text = nmbOfVotes.ToString();
     }
+
+
 }

@@ -20,6 +20,8 @@ public class PlayerMovement : Photon.MonoBehaviour
     bool voted = false;
     PlayerManagement lastVoted;
     PlayerManagement actualVoted;
+    PhotonView lastVotedPV;
+    PhotonView actualVotedPV;
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
@@ -85,21 +87,24 @@ public class PlayerMovement : Photon.MonoBehaviour
             {         
                 if (Input.GetMouseButtonDown(0))
                 {
-                    actualVoted = hit.collider.gameObject.GetComponent<PlayerManagement>();
+                    GameObject go = hit.collider.gameObject;
+                    actualVoted = go.GetComponent<PlayerManagement>();
+                    actualVotedPV = actualVoted.GetComponent<PhotonView>();
 
                     //use on first vote;
-                    if(lastVoted == null)
+                    if (lastVoted == null)
                     {
-                        Debug.Log("no vote");
                         lastVoted = actualVoted;
-                        actualVoted.UpNmbOfVotes();
+                        lastVotedPV = actualVotedPV;
+                        actualVotedPV.RPC("UpNmbOfVotes", PhotonTargets.All);
                     }
 
                     if(lastVoted != actualVoted)
                     {
-                        lastVoted.MinusNmbOfVotes();
-                        actualVoted.UpNmbOfVotes();
+                        lastVotedPV.RPC("MinusNmbOfVotes", PhotonTargets.All);
+                        actualVotedPV.RPC("UpNmbOfVotes", PhotonTargets.All);
                         lastVoted = actualVoted;
+                        lastVotedPV = actualVotedPV;
                     }
                 }
             }
