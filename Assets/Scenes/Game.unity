@@ -695,8 +695,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   players: []
-  startTimer: 8
   timerText: {fileID: 1832940533}
+  loopTimer: 30
 --- !u!1 &822928097
 GameObject:
   m_ObjectHideFlags: 0

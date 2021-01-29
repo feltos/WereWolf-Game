@@ -14,9 +14,13 @@ public class GameManager : MonoBehaviour
 
     //for gameplay loop
     bool gameStarted = false;
-    [SerializeField] float startTimer;
     [SerializeField] Text timerText;
-    float loopTimer;
+    bool firstRound = true;
+    [SerializeField]float loopTimer;
+    bool nightPhase = false;
+    bool nightPhaseStart = false;
+    bool nightPhaseEnd = false;
+    bool dayPhase = true;
 
     void Awake()
     {
@@ -72,36 +76,98 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(startTimer);
+
 
         if (gameStarted)
         {
             //la partie commence dans 30 secondes (a ne faire qu'une fois)
-          
-                timerText.text = "La partie commence dans " + ((int)startTimer).ToString() + " secondes";
-                startTimer -= Time.deltaTime;
-            
+            if (!nightPhase && firstRound)
+            {
+                timerText.text = "La partie commence dans " + ((int)loopTimer).ToString() + " secondes";
+                loopTimer -= Time.deltaTime;                 
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+            //MAIN LOOP / RESTART HERE
+
+
             //la vue des villageois se ferme
-            if(startTimer <= 0)
-            {               
+            if (loopTimer <= 0 && !nightPhase && !nightPhaseStart && !nightPhaseEnd)
+            {
+                foreach (GameObject player in players)
+                {
+                    player.GetComponentInChildren<Camera>().fieldOfView = 0;
+                }
+                nightPhaseStart = true;
+                loopTimer = 5;
+                firstRound = false;
+            }
+
+            if (nightPhaseStart)
+            {
+                timerText.text = "Le village s'endort... " + ((int)loopTimer).ToString();
+                loopTimer -= Time.deltaTime;
+
+                if(loopTimer <= 0)
+                {
+                    nightPhase = true;
+                    loopTimer = 30;
+                }
+            }
+            //le timer de 30 secondes commence pour les villageois; les loups se réveillent et votent
+            if (nightPhase)
+            {
+                nightPhaseStart = false;
+
+                foreach (GameObject player in players)
+                {
+                    if(player.GetComponent<PlayerManagement>().GetRoleId() == 1)
+                    {
+                        player.GetComponentInChildren<Camera>().fieldOfView = 60;
+                        player.GetComponent<PlayerMovement>().SetCanVote(true);
+                    }
+                }
+                loopTimer -= Time.deltaTime;
+                timerText.text = "Les loups-garous choissisent leur victime... " + ((int)loopTimer).ToString();
+                if(loopTimer <= 0)
+                {
+                    nightPhaseEnd = true;
+                    loopTimer = 5;
+                }
+            }
+            //la nuit se termine
+            if (nightPhaseEnd)
+            {
+                nightPhase = false;
                 foreach (GameObject player in players)
                 {
                     if (player.GetComponent<PlayerManagement>().GetRoleId() == 1)
                     {
                         player.GetComponentInChildren<Camera>().fieldOfView = 0;
-                    }
-                    else
-                    {
-                        player.GetComponent<PlayerMovement>().SetCanVote(true);
+                        player.GetComponent<PlayerMovement>().SetCanVote(false);
                     }
                 }
+                loopTimer -= Time.deltaTime;
+                timerText.text = "Le village se réveille... " + ((int)loopTimer).ToString();
+                if(loopTimer <= 0)
+                {
+                    nightPhaseEnd = false;
+                }
             }
-            //le timer de 30 secondes commence pour les villageois et les loups
-
-
-            //les loups votent
 
             // la vue des villageois revient et le mort du round est annoncé
+
 
             //le timer de 60 secondes démarre et les villageois peuvent voter
 
