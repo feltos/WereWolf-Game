@@ -51,4 +51,8 @@ MonoBehaviour:
   - MinusNmbOfVotes
   - UpNmbOfVotes
   - nmbOfvoted
+  - ResetNmbOfVotes
+  - SetRoleId
+  - GetRoleId
+  - GetPlayerName
   DisableAutoOpenWizard: 1

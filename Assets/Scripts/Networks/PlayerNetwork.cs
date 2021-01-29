@@ -91,13 +91,13 @@ public class PlayerNetwork : MonoBehaviour
     {
         positionId = PhotonNetwork.player.ID -1;
         GameObject obj = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "unitychan"), socles[positionId].transform.position + new Vector3(0, 1, 0), Quaternion.identity, 0);
+        obj.GetComponent<PlayerManagement>().SetPlayerName(PhotonNetwork.player.NickName);
     }
 
     void Update()
     {
         if (inLobby)
         {
-            Debug.Log("test");
             GameObject inputPlayerFieldEmptyObject = GameObject.Find("Pseudo");
             InputField inputPlayerField = inputPlayerFieldEmptyObject.GetComponent<InputField>();
             PhotonNetwork.player.NickName = inputPlayerField.text;
