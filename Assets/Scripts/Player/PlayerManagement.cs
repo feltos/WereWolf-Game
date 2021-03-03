@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerManagement : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class PlayerManagement : MonoBehaviour
     private int nmbOfVotes = 0;
     [SerializeField] TextMeshProUGUI nmbOfVotesText;
     string playerName;
+    private Text uiText;
 
     public void SetPlayerName(string newPlayerName)
     {
@@ -18,14 +20,15 @@ public class PlayerManagement : MonoBehaviour
     }
 
     [PunRPC]
-    public string GetPlayerName()
+    public void GetPlayerName(float timer)
     {
-        return playerName;
+        uiText.text = PhotonNetwork.playerName + " a été tué..." + ((int)timer).ToString();
     }
     void Awake()
     {
         Instance = this;
         PhotonView = GetComponent<PhotonView>();
+        uiText = GameObject.FindGameObjectWithTag("TimerText").GetComponent<Text>();
     }
 
     void Update()

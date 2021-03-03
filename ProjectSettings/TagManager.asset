@@ -7,6 +7,7 @@ TagManager:
   - Socle
   - SoclesManager
   - GameManager
+  - TimerText
   layers:
   - Default
   - TransparentFX

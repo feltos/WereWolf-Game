@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Hashtable = ExitGames.Client.Photon.Hashtable;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
@@ -25,6 +26,9 @@ public class GameManager : MonoBehaviour
     int nmbOfVotes;
     int ratioPlayers;
     bool voteLoup;
+    //string playerKill = (string)PhotonNetwork.player.CustomProperties["PlayerKill"];
+    Hashtable hash = new Hashtable();
+
 
     enum State
     {
@@ -198,7 +202,7 @@ public class GameManager : MonoBehaviour
                         if (players[i].GetComponent<PlayerManagement>().GetnmbOfVotes() > nmbOfVotes)
                         {
                             nmbOfVotes = players[i].GetComponent<PlayerManagement>().GetnmbOfVotes();
-                            mostVoted = i;
+                            mostVoted = i;                     
                         }
                     }
                 }
@@ -211,9 +215,11 @@ public class GameManager : MonoBehaviour
             case State.KILL_REVEAL:
 
                 loopTimer -= Time.deltaTime;
-                timerText.text = players[mostVoted].GetComponent<PlayerManagement>().GetPlayerName() + " a été tué... " + ((int)loopTimer).ToString();
+                //BORDEL DE MERDE CA MARCHE PAS tout à fait
+                players[mostVoted].GetComponent<PhotonView>().RPC("GetPlayerName", PhotonTargets.All, loopTimer);
+
                 //Enlever le joueur mort du tableau players et le griser
-                if(loopTimer <= 0)
+                if (loopTimer <= 0)
                 {
                     state = State.CHECK_WIN;
                 }
