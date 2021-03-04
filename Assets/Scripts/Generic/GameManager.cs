@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
             werewolfNb = 1;
         }
 
-        if(players.Count > 5)
+        else        
         {
             werewolfNb = 2;
         }
@@ -86,15 +86,13 @@ public class GameManager : MonoBehaviour
             }
         }
 
-
         foreach(GameObject player in players)
         {
             player.GetComponentInChildren<Camera>().fieldOfView = 60;           
         }
 
-        state = State.START;
-
-        StopAllCoroutines();
+        loopTimer = 20;
+        state = State.START;      
     }
 
     void Update()
@@ -105,6 +103,9 @@ public class GameManager : MonoBehaviour
         {
             //la partie commence dans 30 secondes (a ne faire qu'une fois)
             case State.START:
+
+                StopAllCoroutines();
+
                 timerText.text = "La partie commence dans " + ((int)loopTimer).ToString() + " secondes";
                 loopTimer -= Time.deltaTime;
                 if(loopTimer <= 0)
@@ -117,8 +118,20 @@ public class GameManager : MonoBehaviour
                 //tout le monde vote pendant 60 secondes
             case State.DAY:
 
-                //voteLoup = false;
-                //state = State.KILL_CALCUL;
+                voteLoup = false;
+
+                loopTimer -= Time.deltaTime;
+                timerText.text = "Les villageois choissisent leur victime... " + ((int)loopTimer).ToString();
+
+                foreach (GameObject player in players)
+                {   
+                    player.GetComponent<PlayerMovement>().SetCanVote(true);                   
+                }
+
+                if(loopTimer <= 0)
+                {
+                    state = State.KILL_CALCUL;
+                }
 
                 break;
 
@@ -135,7 +148,7 @@ public class GameManager : MonoBehaviour
 
                 if(loopTimer <= 0)
                 {
-                    loopTimer = 10;
+                    loopTimer = 20;
                     state = State.NIGHT;
                 }
 
@@ -201,13 +214,15 @@ public class GameManager : MonoBehaviour
                         if (players[i].GetComponent<PlayerManagement>().GetnmbOfVotes() > nmbOfVotes)
                         {
                             nmbOfVotes = players[i].GetComponent<PlayerManagement>().GetnmbOfVotes();
-                            mostVoted = i;
-                            
+                            mostVoted = i;                          
                         }
                     }
                 }
           
                 loopTimer = 10;
+                playerKill = players[mostVoted].GetPhotonView().owner.NickName;
+                players[mostVoted].GetComponent<PlayerManagement>().SetDead();
+                players.RemoveAt(mostVoted);
                 state = State.KILL_REVEAL;
                 
                 break;
@@ -215,10 +230,19 @@ public class GameManager : MonoBehaviour
             case State.KILL_REVEAL:
 
                 loopTimer -= Time.deltaTime;
-                playerKill = players[mostVoted].GetPhotonView().owner.NickName;
-                timerText.text = playerKill + " a été tué... " + ((int)loopTimer).ToString();
 
-                //Enlever le joueur mort du tableau players et le griser
+                if(loopTimer <= 8)
+                {                   
+                    timerText.text = playerKill + " a été tué... " + ((int)loopTimer).ToString();
+                    
+                    foreach (GameObject player in players)
+                    {
+                        PlayerManagement playerManagement = player.GetComponent<PlayerManagement>();
+                        PhotonView playerPhotonView = playerManagement.GetComponent<PhotonView>();
+                        playerPhotonView.RPC("ResetNmbOfVotes", PhotonTargets.All);
+                    }
+                }
+               
                 if (loopTimer <= 0)
                 {
                     state = State.CHECK_WIN;
@@ -228,21 +252,15 @@ public class GameManager : MonoBehaviour
 
                 //Check si le nombre de villageois est supérieur aux loups garous
             case State.CHECK_WIN:
-
+                             
                 mostVoted = 0;
-                foreach(GameObject player in players)
-                {
-                    PlayerManagement playerManagement = player.GetComponent<PlayerManagement>();
-                    PhotonView playerPhotonView = playerManagement.GetComponent<PhotonView>();
-                    playerPhotonView.RPC("ResetNmbOfVotes", PhotonTargets.All);
-                }
 
                 int loupsGarous = 0;
                 int villageois = 0;
-
-                foreach(GameObject player in players)
+    
+                foreach (GameObject player in players)
                 {
-                    if(player.GetComponent<PlayerManagement>().GetRoleId() == 1)
+                    if (player.GetComponent<PlayerManagement>().GetRoleId() == 1)
                     {
                         loupsGarous++;
                     }
@@ -252,24 +270,28 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
-                if(loupsGarous == 0)
+                if (loupsGarous == 0)
                 {
                     timerText.text = "Les villageois ont gagnés !";
                 }
-                if(loupsGarous >= villageois)
+                if (loupsGarous >= villageois)
                 {
                     timerText.text = "Les lous-garous ont gagnés !";
                 }
-                if(villageois > loupsGarous && voteLoup)
+                if (villageois > loupsGarous && voteLoup)
                 {
                     loopTimer = 60;
+                    loupsGarous = 0;
+                    villageois = 0;
                     state = State.DAY;
                 }
-                if(villageois > loupsGarous && !voteLoup)
+                if (villageois > loupsGarous && !voteLoup && loupsGarous != 0)
                 {
                     loopTimer = 5;
+                    loupsGarous = 0;
+                    villageois = 0;
                     state = State.DAY_TO_NIGHT;
-                }
+                }                       
 
                 break;
 

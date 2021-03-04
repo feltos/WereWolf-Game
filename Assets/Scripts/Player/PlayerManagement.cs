@@ -13,6 +13,21 @@ public class PlayerManagement : MonoBehaviour
     private int nmbOfVotes = 0;
     [SerializeField] TextMeshProUGUI nmbOfVotesText;
     string playerName;
+    bool dead = false;
+    [SerializeField]GameObject meshRoot;
+
+    public void SetDead()
+    {
+        if (PhotonView.isMine)
+        {
+            dead = true;
+        }
+    }
+
+    public bool GetDead()
+    {
+        return dead;
+    }
 
     public void SetPlayerName(string newPlayerName)
     {
@@ -33,7 +48,12 @@ public class PlayerManagement : MonoBehaviour
 
     void Update()
     {
-
+        if (dead)
+        {
+            
+            PhotonView.RPC("Phantom", PhotonTargets.All);
+            PhotonView.RPC("ResetNmbOfVotes", PhotonTargets.All);
+        }
     }
 
     [PunRPC]
@@ -56,15 +76,21 @@ public class PlayerManagement : MonoBehaviour
     [PunRPC]
     public void UpNmbOfVotes()
     {
-        nmbOfVotes++;
-        nmbOfVotesText.text = nmbOfVotes.ToString();      
+        if (!dead)
+        {
+            nmbOfVotes++;
+            nmbOfVotesText.text = nmbOfVotes.ToString();
+        }    
     }
 
     [PunRPC]
     public void MinusNmbOfVotes()
     {
-        nmbOfVotes--;
-        nmbOfVotesText.text = nmbOfVotes.ToString();
+        if (!dead)
+        {
+            nmbOfVotes--;
+            nmbOfVotesText.text = nmbOfVotes.ToString();
+        }
     }
 
     [PunRPC]
@@ -72,6 +98,12 @@ public class PlayerManagement : MonoBehaviour
     {
         nmbOfVotes = 0;
         nmbOfVotesText.text = nmbOfVotes.ToString();
+    }
+
+    [PunRPC]
+    void Phantom()
+    {
+        meshRoot.SetActive(false);
     }
 
 

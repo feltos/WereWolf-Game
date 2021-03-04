@@ -6381,6 +6381,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roleId: 0
   nmbOfVotesText: {fileID: 5941216340533138078}
+  meshRoot: {fileID: 3707362431913770477}
 --- !u!1 &3707362431913770463
 GameObject:
   m_ObjectHideFlags: 0

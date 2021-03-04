@@ -22,6 +22,7 @@ public class PlayerMovement : Photon.MonoBehaviour
     PlayerManagement actualVoted;
     PhotonView lastVotedPV;
     PhotonView actualVotedPV;
+    PlayerManagement playerManagement;
 
     public void SetCanVote(bool newCanVote)
     {
@@ -33,7 +34,8 @@ public class PlayerMovement : Photon.MonoBehaviour
         PhotonView = GetComponent<PhotonView>();
         animator = GetComponent<Animator>();
         body = GetComponent<Rigidbody>();
-        camera = this.GetComponentInChildren<Camera>();       
+        camera = this.GetComponentInChildren<Camera>();
+        playerManagement = GetComponent<PlayerManagement>();
     }
     void Update()
     {
@@ -90,7 +92,7 @@ public class PlayerMovement : Photon.MonoBehaviour
         {
             if (hit.collider.tag == "Player")
             {         
-                if (Input.GetMouseButtonDown(0) && canVote)
+                if (Input.GetMouseButtonDown(0) && canVote && !playerManagement.GetDead())
                 {
                     GameObject go = hit.collider.gameObject;
                     actualVoted = go.GetComponent<PlayerManagement>();
