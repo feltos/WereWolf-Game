@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
 {
     public List<GameObject> players = new List<GameObject>();
     bool allPlayerHere = false;
-    int werewolfNb;
+    int werewolfNb = 1;
 
     //for gameplay loop
     bool gameStarted = false;
@@ -56,15 +56,6 @@ public class GameManager : MonoBehaviour
             players.Add(player);
         }
 
-        if(players.Count <= 5)
-        {
-            werewolfNb = 1;
-        }
-
-        else        
-        {
-            werewolfNb = 2;
-        }
 
         for (int positionOfArray = 0; positionOfArray < players.Count; positionOfArray++)
         {
@@ -76,10 +67,11 @@ public class GameManager : MonoBehaviour
 
         for(int i = 0; i < players.Count; i++)
         {
-            if(i < werewolfNb)
+
+            if (i < werewolfNb)
             {
-                players[i].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.All,1);
-            }
+                players[0].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.All, 1);
+            }     
             else
             {
                 players[i].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.All, 2);
@@ -283,6 +275,7 @@ public class GameManager : MonoBehaviour
                     loopTimer = 60;
                     loupsGarous = 0;
                     villageois = 0;
+                    playerKill = "Nobody";
                     state = State.DAY;
                 }
                 if (villageois > loupsGarous && !voteLoup && loupsGarous != 0)
@@ -290,6 +283,7 @@ public class GameManager : MonoBehaviour
                     loopTimer = 5;
                     loupsGarous = 0;
                     villageois = 0;
+                    playerKill = "Nobody";
                     state = State.DAY_TO_NIGHT;
                 }                       
 
