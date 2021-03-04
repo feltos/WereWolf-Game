@@ -65,20 +65,17 @@ public class GameManager : MonoBehaviour
             players[randomArray] = obj;           
         }
 
-        for(int i = 0; i < players.Count; i++)
-        {
 
-            if (i < werewolfNb)
-            {
-                players[0].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.All, 1);
-            }     
-            else
-            {
-                players[i].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.All, 2);
-            }
+
+        for (int i = 0; i < players.Count; i++)
+        {         
+            players[i].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.All, 2);          
         }
 
-        foreach(GameObject player in players)
+        players[0].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.All, 1);
+
+
+        foreach (GameObject player in players)
         {
             player.GetComponentInChildren<Camera>().fieldOfView = 60;           
         }
@@ -194,6 +191,8 @@ public class GameManager : MonoBehaviour
                 //le kill loup garou ou villageois est annoncé
             case State.KILL_CALCUL:
 
+                mostVoted = 0;
+
                 foreach (GameObject player in players)
                 {           
                     player.GetComponentInChildren<Camera>().fieldOfView = 60;                  
@@ -262,7 +261,7 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
-                if (loupsGarous == 0)
+                if (loupsGarous == 0 || villageois <= 1)
                 {
                     timerText.text = "Les villageois ont gagnés !";
                 }

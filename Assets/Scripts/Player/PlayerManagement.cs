@@ -15,6 +15,8 @@ public class PlayerManagement : MonoBehaviour
     string playerName;
     bool dead = false;
     [SerializeField]GameObject meshRoot;
+    [SerializeField] Collider collider;
+
 
     public void SetDead()
     {
@@ -104,6 +106,8 @@ public class PlayerManagement : MonoBehaviour
     void Phantom()
     {
         meshRoot.SetActive(false);
+        collider.enabled = false;
+        nmbOfVotesText.canvas.enabled = false;
     }
 
 
