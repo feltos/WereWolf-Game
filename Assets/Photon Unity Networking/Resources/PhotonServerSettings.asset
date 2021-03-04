@@ -55,4 +55,5 @@ MonoBehaviour:
   - SetRoleId
   - GetRoleId
   - GetPlayerName
+  - ChangeName
   DisableAutoOpenWizard: 1
