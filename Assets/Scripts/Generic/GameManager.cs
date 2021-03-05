@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviour
     int ratioPlayers;
     bool voteLoup;
     string playerKill = "Nobody";
+    int loupsGarous = 0;
+    int villageois = 0;
 
 
     enum State
@@ -108,7 +110,6 @@ public class GameManager : MonoBehaviour
             case State.DAY:
 
                 voteLoup = false;
-
                 loopTimer -= Time.deltaTime;
                 timerText.text = "Les villageois choissisent leur victime... " + ((int)loopTimer).ToString();
 
@@ -173,14 +174,17 @@ public class GameManager : MonoBehaviour
                 timerText.text = "Le village se réveille... " + ((int)loopTimer).ToString();
                 foreach (GameObject player in players)
                 {
+                    mostVoted = 0;
                     if (player.GetComponent<PlayerManagement>().GetRoleId() == 1)
                     {
                         player.GetComponentInChildren<Camera>().fieldOfView = 0;
+                        player.GetComponent<PlayerMovement>().SetCanVote(false);
+
                     }
                 }
 
                 if(loopTimer <= 0)
-                {
+                {                 
                     voteLoup = true;
                     loopTimer = 5;
                     state = State.KILL_CALCUL;
@@ -191,8 +195,7 @@ public class GameManager : MonoBehaviour
                 //le kill loup garou ou villageois est annoncé
             case State.KILL_CALCUL:
 
-                mostVoted = 0;
-
+                
                 foreach (GameObject player in players)
                 {           
                     player.GetComponentInChildren<Camera>().fieldOfView = 60;                  
@@ -205,15 +208,17 @@ public class GameManager : MonoBehaviour
                         if (players[i].GetComponent<PlayerManagement>().GetnmbOfVotes() > nmbOfVotes)
                         {
                             nmbOfVotes = players[i].GetComponent<PlayerManagement>().GetnmbOfVotes();
-                            mostVoted = i;                          
+                            mostVoted = i;
+                            playerKill = players[mostVoted].GetPhotonView().owner.NickName;
                         }
                     }
                 }
-          
+
+
+                
+
                 loopTimer = 10;
-                playerKill = players[mostVoted].GetPhotonView().owner.NickName;
-                players[mostVoted].GetComponent<PlayerManagement>().SetDead();
-                players.RemoveAt(mostVoted);
+                
                 state = State.KILL_REVEAL;
                 
                 break;
@@ -222,20 +227,42 @@ public class GameManager : MonoBehaviour
 
                 loopTimer -= Time.deltaTime;
 
-                if(loopTimer <= 8)
+
+                if (loopTimer <= 8 && loopTimer > 6)
+                {
+                    players[mostVoted].GetComponent<PhotonView>().GetComponent<PlayerManagement>().SetDead();
+                }
+
+                timerText.text = playerKill + " a été tué... " + ((int)loopTimer).ToString();
+
+                if (loopTimer < 6 && loopTimer > 3)
                 {                   
-                    timerText.text = playerKill + " a été tué... " + ((int)loopTimer).ToString();
-                    
                     foreach (GameObject player in players)
                     {
                         PlayerManagement playerManagement = player.GetComponent<PlayerManagement>();
                         PhotonView playerPhotonView = playerManagement.GetComponent<PhotonView>();
                         playerPhotonView.RPC("ResetNmbOfVotes", PhotonTargets.All);
                     }
+                    
                 }
-               
+
                 if (loopTimer <= 0)
                 {
+                    loopTimer = 5;
+                    players.RemoveAt(mostVoted);
+
+                    foreach (GameObject player in players)
+                    {
+                        if (player.GetComponent<PlayerManagement>().GetRoleId() == 1)
+                        {
+                            loupsGarous++;
+                        }
+                        else
+                        {
+                            villageois++;
+                        }
+                    }
+
                     state = State.CHECK_WIN;
                 }
 
@@ -243,48 +270,44 @@ public class GameManager : MonoBehaviour
 
                 //Check si le nombre de villageois est supérieur aux loups garous
             case State.CHECK_WIN:
-                             
-                mostVoted = 0;
 
-                int loupsGarous = 0;
-                int villageois = 0;
-    
-                foreach (GameObject player in players)
+                loopTimer -= Time.deltaTime;
+                timerText.text =  "En attente de la suite... " + ((int)loopTimer).ToString();
+                
+                
+                if(loopTimer <= 0)
                 {
-                    if (player.GetComponent<PlayerManagement>().GetRoleId() == 1)
+                    if (loupsGarous == 0 || villageois <= 1)
                     {
-                        loupsGarous++;
+                        timerText.text = "Les villageois ont gagnés !";
                     }
-                    else
+                    if (loupsGarous >= villageois)
                     {
-                        villageois++;
+                        timerText.text = "Les lous-garous ont gagnés !";
                     }
-                }
+                    if (villageois > loupsGarous && voteLoup)
+                    {
+                        mostVoted = 0;
+                        loopTimer = 60;
+                        loupsGarous = 0;
+                        villageois = 0;
+                        playerKill = "Nobody";
+                        state = State.DAY;
+                    }
+                    if (loupsGarous < villageois && !voteLoup && loupsGarous != 0)
+                    {
+                        mostVoted = 0;
+                        loopTimer = 5;
+                        loupsGarous = 0;
+                        villageois = 0;
+                        playerKill = "Nobody";
 
-                if (loupsGarous == 0 || villageois <= 1)
-                {
-                    timerText.text = "Les villageois ont gagnés !";
+                        state = State.DAY_TO_NIGHT;
+                    }
                 }
-                if (loupsGarous >= villageois)
-                {
-                    timerText.text = "Les lous-garous ont gagnés !";
-                }
-                if (villageois > loupsGarous && voteLoup)
-                {
-                    loopTimer = 60;
-                    loupsGarous = 0;
-                    villageois = 0;
-                    playerKill = "Nobody";
-                    state = State.DAY;
-                }
-                if (villageois > loupsGarous && !voteLoup && loupsGarous != 0)
-                {
-                    loopTimer = 5;
-                    loupsGarous = 0;
-                    villageois = 0;
-                    playerKill = "Nobody";
-                    state = State.DAY_TO_NIGHT;
-                }                       
+         
+
+               
 
                 break;
 
