@@ -49,7 +49,6 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         StartCoroutine(RandomArray());
-
     }
     IEnumerator RandomArray()
     {
@@ -184,7 +183,8 @@ public class GameManager : MonoBehaviour
                 }
 
                 if(loopTimer <= 0)
-                {                 
+                {
+                    mostVoted = 0;
                     voteLoup = true;
                     loopTimer = 5;
                     state = State.KILL_CALCUL;
