@@ -120,6 +120,7 @@ public class GameManager : MonoBehaviour
 
                 if(loopTimer <= 0)
                 {
+                    loopTimer = 5;
                     state = State.KILL_CALCUL;
                 }
 
@@ -195,7 +196,8 @@ public class GameManager : MonoBehaviour
                 //le kill loup garou ou villageois est annoncé
             case State.KILL_CALCUL:
 
-                
+                loopTimer -= Time.deltaTime;
+                timerText.text = "En attente de la suite... " + ((int)loopTimer).ToString();
                 foreach (GameObject player in players)
                 {           
                     player.GetComponentInChildren<Camera>().fieldOfView = 60;                  
@@ -214,12 +216,12 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
+                if(loopTimer <= 0)
+                {
+                    loopTimer = 10;
+                    state = State.KILL_REVEAL;
+                }
 
-                
-
-                loopTimer = 10;
-                
-                state = State.KILL_REVEAL;
                 
                 break;
 
@@ -301,7 +303,6 @@ public class GameManager : MonoBehaviour
                         loupsGarous = 0;
                         villageois = 0;
                         playerKill = "Nobody";
-
                         state = State.DAY_TO_NIGHT;
                     }
                 }
