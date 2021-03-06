@@ -45,51 +45,43 @@ public class GameManager : MonoBehaviour
     }
 
     State state = State.NONE;
+
     void Awake()
     {
         StartCoroutine(RandomArray());
+
     }
     IEnumerator RandomArray()
     {
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(1);
 
-        foreach(GameObject player in GameObject.FindGameObjectsWithTag("Player"))
+        foreach (GameObject player in GameObject.FindGameObjectsWithTag("Player"))
         {
             players.Add(player);
+            player.GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.AllViaServer, 2);
         }
 
+        players[0].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.AllViaServer, 1);
+    
 
-        for (int positionOfArray = 0; positionOfArray < players.Count; positionOfArray++)
-        {
-            GameObject obj = players[positionOfArray];
-            int randomArray = Random.Range(0, players.Count);
-            players[positionOfArray] = players[randomArray];
-            players[randomArray] = obj;           
-        }
-
-
-
-        for (int i = 0; i < players.Count; i++)
-        {         
-            players[i].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.All, 2);          
-        }
-
-        players[0].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.All, 1);
-
-
-        foreach (GameObject player in players)
-        {
-            player.GetComponentInChildren<Camera>().fieldOfView = 60;           
-        }
+        yield return new WaitForSeconds(2);
 
         loopTimer = 20;
-        state = State.START;      
+        state = State.START;
+
+        //for (int positionOfArray = 0; positionOfArray < players.Count; positionOfArray++)
+        //{
+        //    GameObject obj = players[positionOfArray];
+        //    int randomArray = Random.Range(0, players.Count);
+        //    players[positionOfArray] = players[randomArray];
+        //    players[randomArray] = obj;
+        //}
+
+
     }
 
     void Update()
     {
-
-     
         switch (state)
         {
             //la partie commence dans 30 secondes (a ne faire qu'une fois)
@@ -97,9 +89,16 @@ public class GameManager : MonoBehaviour
 
                 StopAllCoroutines();
 
-                timerText.text = "La partie commence dans " + ((int)loopTimer).ToString() + " secondes";
                 loopTimer -= Time.deltaTime;
-                if(loopTimer <= 0)
+                timerText.text = "La partie commence dans " + ((int)loopTimer).ToString() + " secondes";
+
+
+                foreach (GameObject player in players)
+                {
+                    player.GetComponentInChildren<Camera>().fieldOfView = 60;
+                }
+
+                if (loopTimer <= 0)
                 {
                     loopTimer = 5;
                     state = State.DAY_TO_NIGHT;
@@ -129,13 +128,13 @@ public class GameManager : MonoBehaviour
                 //tout le monde s'endort
             case State.DAY_TO_NIGHT:
 
+                loopTimer -= Time.deltaTime;
+                timerText.text = "Le village s'endort... " + ((int)loopTimer).ToString();
+
                 foreach (GameObject player in players)
                 {
                     player.GetComponentInChildren<Camera>().fieldOfView = 0;
                 }
-
-                timerText.text = "Le village s'endort... " + ((int)loopTimer).ToString();
-                loopTimer -= Time.deltaTime;
 
                 if(loopTimer <= 0)
                 {
@@ -253,18 +252,6 @@ public class GameManager : MonoBehaviour
                     loopTimer = 5;
                     players.RemoveAt(mostVoted);
 
-                    foreach (GameObject player in players)
-                    {
-                        if (player.GetComponent<PlayerManagement>().GetRoleId() == 1)
-                        {
-                            loupsGarous++;
-                        }
-                        else
-                        {
-                            villageois++;
-                        }
-                    }
-
                     state = State.CHECK_WIN;
                 }
 
@@ -275,9 +262,21 @@ public class GameManager : MonoBehaviour
 
                 loopTimer -= Time.deltaTime;
                 timerText.text =  "En attente de la suite... " + ((int)loopTimer).ToString();
-                
-                
-                if(loopTimer <= 0)
+
+
+                foreach (GameObject player in players)
+                {
+                    if (player.GetComponent<PlayerManagement>().GetRoleId() == 1)
+                    {
+                        loupsGarous++;
+                    }
+                    else
+                    {
+                        villageois++;
+                    }
+                }
+
+                if (loopTimer <= 0)
                 {
                     if (loupsGarous == 0 || villageois <= 1)
                     {
@@ -290,7 +289,7 @@ public class GameManager : MonoBehaviour
                     if (villageois > loupsGarous && voteLoup)
                     {
                         mostVoted = 0;
-                        loopTimer = 60;
+                        loopTimer = 30;
                         loupsGarous = 0;
                         villageois = 0;
                         playerKill = "Nobody";
@@ -306,10 +305,6 @@ public class GameManager : MonoBehaviour
                         state = State.DAY_TO_NIGHT;
                     }
                 }
-         
-
-               
-
                 break;
 
             case State.NEW_RULE:

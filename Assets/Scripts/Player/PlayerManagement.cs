@@ -9,7 +9,7 @@ public class PlayerManagement : MonoBehaviour
 {
     public static PlayerManagement Instance;
     private PhotonView PhotonView;
-    public int roleId = 0; // 1 = loup-garou, 2 = villageois
+    public int roleId; // 1 = loup-garou, 2 = villageois
     private int nmbOfVotes = 0;
     [SerializeField] TextMeshProUGUI nmbOfVotesText;
     string playerName;
@@ -17,7 +17,10 @@ public class PlayerManagement : MonoBehaviour
     [SerializeField]GameObject meshRoot;
     [SerializeField] Collider collider;
 
-
+    void Start()
+    {
+        //PhotonView.RPC("SetRoleID", PhotonTargets.All,1);
+    }
     public void SetDead()
     {
         if (PhotonView.isMine)
@@ -61,7 +64,7 @@ public class PlayerManagement : MonoBehaviour
     [PunRPC]
     public void SetRoleId(int newId)
     {
-        roleId = newId;
+         roleId = newId;
     }
 
     [PunRPC]
