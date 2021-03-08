@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
     }
     IEnumerator RandomArray()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(2);
 
         foreach (GameObject player in GameObject.FindGameObjectsWithTag("Player"))
         {
@@ -67,15 +67,6 @@ public class GameManager : MonoBehaviour
 
         loopTimer = 20;
         state = State.START;
-
-        //for (int positionOfArray = 0; positionOfArray < players.Count; positionOfArray++)
-        //{
-        //    GameObject obj = players[positionOfArray];
-        //    int randomArray = Random.Range(0, players.Count);
-        //    players[positionOfArray] = players[randomArray];
-        //    players[randomArray] = obj;
-        //}
-
 
     }
 
@@ -119,6 +110,7 @@ public class GameManager : MonoBehaviour
                 if(loopTimer <= 0)
                 {
                     loopTimer = 5;
+                    mostVoted = 0;
                     state = State.KILL_CALCUL;
                 }
 
@@ -171,9 +163,10 @@ public class GameManager : MonoBehaviour
 
                 loopTimer -= Time.deltaTime;
                 timerText.text = "Le village se réveille... " + ((int)loopTimer).ToString();
+                mostVoted = 0;
+
                 foreach (GameObject player in players)
                 {
-                    mostVoted = 0;
                     if (player.GetComponent<PlayerManagement>().GetRoleId() == 1)
                     {
                         player.GetComponentInChildren<Camera>().fieldOfView = 0;
@@ -242,7 +235,7 @@ public class GameManager : MonoBehaviour
                     {
                         PlayerManagement playerManagement = player.GetComponent<PlayerManagement>();
                         PhotonView playerPhotonView = playerManagement.GetComponent<PhotonView>();
-                        playerPhotonView.RPC("ResetNmbOfVotes", PhotonTargets.All);
+                        playerPhotonView.RPC("ResetNmbOfVotes", PhotonTargets.AllViaServer);
                     }
                     
                 }
@@ -292,7 +285,7 @@ public class GameManager : MonoBehaviour
                         loopTimer = 30;
                         loupsGarous = 0;
                         villageois = 0;
-                        playerKill = "Nobody";
+                        //playerKill = "Nobody";
                         state = State.DAY;
                     }
                     if (loupsGarous < villageois && !voteLoup && loupsGarous != 0)
@@ -301,7 +294,7 @@ public class GameManager : MonoBehaviour
                         loopTimer = 5;
                         loupsGarous = 0;
                         villageois = 0;
-                        playerKill = "Nobody";
+                        //playerKill = "Nobody";
                         state = State.DAY_TO_NIGHT;
                     }
                 }

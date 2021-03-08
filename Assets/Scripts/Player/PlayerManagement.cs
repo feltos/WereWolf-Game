@@ -19,7 +19,7 @@ public class PlayerManagement : MonoBehaviour
 
     void Start()
     {
-        //PhotonView.RPC("SetRoleID", PhotonTargets.All,1);
+
     }
     public void SetDead()
     {
