@@ -16,13 +16,13 @@ public class GameManager : MonoBehaviour
     bool gameStarted = false;
     [SerializeField] Text timerText;
     bool firstRound = true;
-    [SerializeField]float loopTimer;
+    [SerializeField]double loopTimer;
     bool nightPhase = false;
     bool nightPhaseStart = false;
     bool nightPhaseEnd = false;
     bool dayPhase = true;
     int mostVoted = 0;
-    int nmbOfVotes;
+    int nmbOfVotes = 0;
     int ratioPlayers;
     bool voteLoup;
     string playerKill = "Nobody";
@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour
             case State.START:
 
                 StopAllCoroutines();
-
+                
                 loopTimer -= Time.deltaTime;
                 timerText.text = "La partie commence dans " + ((int)loopTimer).ToString() + " secondes";
 
@@ -111,7 +111,7 @@ public class GameManager : MonoBehaviour
                 {
                     loopTimer = 5;
                     mostVoted = 0;
-                    state = State.KILL_CALCUL;
+                    state = State.KILL_CALCUL;                   
                 }
 
                 break;
@@ -195,21 +195,20 @@ public class GameManager : MonoBehaviour
                     player.GetComponentInChildren<Camera>().fieldOfView = 60;                  
                 }
 
-                for (int i = 0; i < players.Count; i++)
+                for(int i = 0; i < players.Count; i++)
                 {
-                    if (players[i].GetComponent<PlayerManagement>().GetnmbOfVotes() > mostVoted)
+                    if (players[i].GetComponent<PlayerManagement>().GetnmbOfVotes() > nmbOfVotes)
                     {
-                        if (players[i].GetComponent<PlayerManagement>().GetnmbOfVotes() > nmbOfVotes)
-                        {
-                            nmbOfVotes = players[i].GetComponent<PlayerManagement>().GetnmbOfVotes();
-                            mostVoted = i;
-                            playerKill = players[mostVoted].GetPhotonView().owner.NickName;
-                        }
+                        nmbOfVotes = players[i].GetComponent<PlayerManagement>().GetnmbOfVotes();
+                        mostVoted = i;
+                        playerKill = players[mostVoted].GetPhotonView().owner.NickName;
                     }
                 }
 
                 if(loopTimer <= 0)
                 {
+                    
+                    
                     loopTimer = 10;
                     state = State.KILL_REVEAL;
                 }
@@ -220,14 +219,14 @@ public class GameManager : MonoBehaviour
             case State.KILL_REVEAL:
 
                 loopTimer -= Time.deltaTime;
-
-
-                if (loopTimer <= 8 && loopTimer > 6)
-                {
-                    players[mostVoted].GetComponent<PhotonView>().GetComponent<PlayerManagement>().SetDead();
-                }
-
                 timerText.text = playerKill + " a été tué... " + ((int)loopTimer).ToString();
+                players[mostVoted].GetComponent<PhotonView>().GetComponent<PlayerManagement>().SetDead();
+
+                //if (loopTimer <= 8 && loopTimer > 6)
+                //{
+
+                //}
+
 
                 if (loopTimer < 6 && loopTimer > 3)
                 {                   
@@ -285,7 +284,7 @@ public class GameManager : MonoBehaviour
                         loopTimer = 30;
                         loupsGarous = 0;
                         villageois = 0;
-                        //playerKill = "Nobody";
+                        nmbOfVotes = 0;
                         state = State.DAY;
                     }
                     if (loupsGarous < villageois && !voteLoup && loupsGarous != 0)
@@ -294,7 +293,7 @@ public class GameManager : MonoBehaviour
                         loopTimer = 5;
                         loupsGarous = 0;
                         villageois = 0;
-                        //playerKill = "Nobody";
+                        nmbOfVotes = 0;
                         state = State.DAY_TO_NIGHT;
                     }
                 }
