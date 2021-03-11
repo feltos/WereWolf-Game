@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     int mostVoted = 0;
     int nmbOfVotes = 0;
     int ratioPlayers;
-    bool voteLoup;
+    bool wolfHasVoted;
     string playerKill = "Nobody";
     int loupsGarous = 0;
     int villageois = 0;
@@ -34,6 +34,7 @@ public class GameManager : MonoBehaviour
     //Règles 
 
     bool needNewRule = true;
+    bool innocent = false;
 
     bool rule1 = false; //Tout le monde voit lors de la nuit
     bool rule2 = false; //Un joueur aléatoire est éliminé
@@ -111,7 +112,7 @@ public class GameManager : MonoBehaviour
                 //tout le monde vote pendant 60 secondes
             case State.DAY:
 
-                voteLoup = false;
+                wolfHasVoted = false;
                 loopTimer -= Time.deltaTime;
                 timerText.text = "Les villageois choissisent leur victime... " + ((int)loopTimer).ToString();
 
@@ -197,7 +198,7 @@ public class GameManager : MonoBehaviour
                 if(loopTimer <= 0)
                 {
                     mostVoted = 0;
-                    voteLoup = true;
+                    wolfHasVoted = true;
                     loopTimer = 5;
                     state = State.KILL_CALCUL;
                 }
@@ -211,11 +212,9 @@ public class GameManager : MonoBehaviour
                 timerText.text = "En attente de la suite... " + ((int)loopTimer).ToString();
                 foreach (GameObject player in players)
                 {           
-                    player.GetComponentInChildren<Camera>().fieldOfView = 60;
-           
+                    player.GetComponentInChildren<Camera>().fieldOfView = 60;        
                 }
-
-              
+                       
                 for (int i = 0; i < players.Count; i++)
                 {              
                     if (players[i].GetComponent<PlayerManagement>().GetnmbOfVotes() > nmbOfVotes)
@@ -226,27 +225,38 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
-              
-                
-                
                 if(loopTimer <= 0)
                 {                   
                     loopTimer = 10;                  
                     state = State.KILL_REVEAL;
                 }
-
                 
                 break;
 
             case State.KILL_REVEAL:
 
                 loopTimer -= Time.deltaTime;
-                timerText.text = playerKill + " a été tué... " + ((int)loopTimer).ToString();
 
- 
-                players[mostVoted].GetComponent<PhotonView>().GetComponent<PlayerManagement>().SetDead();
-                
-                
+                if (!rule5)
+                {
+                    timerText.text = playerKill + " a été tué... " + ((int)loopTimer).ToString();
+                    players[mostVoted].GetComponent<PhotonView>().GetComponent<PlayerManagement>().SetDead();
+                }
+
+                if (rule5)
+                {
+                    if (players[mostVoted].GetComponent<PlayerManagement>().GetRoleId() == 1)
+                    {
+                        timerText.text = playerKill + " a été tué... " + ((int)loopTimer).ToString();
+                        players[mostVoted].GetComponent<PhotonView>().GetComponent<PlayerManagement>().SetDead();
+                        innocent = false;
+                    }
+                    if(players[mostVoted].GetComponent<PlayerManagement>().GetRoleId() == 2)
+                    {
+                        timerText.text = playerKill + " a été épargné..." + ((int)loopTimer).ToString();
+                        innocent = true;
+                    }
+                }
 
                 if (loopTimer < 6 && loopTimer > 3)
                 {                   
@@ -261,10 +271,27 @@ public class GameManager : MonoBehaviour
 
                 if (loopTimer <= 0)
                 {
-                    players.RemoveAt(mostVoted);
+                    if (innocent && rule5)
+                    {
+                        loopTimer = 5;
+                        state = State.CHECK_WIN;
+                    }
 
-                    loopTimer = 5;
-                    state = State.CHECK_WIN;
+                    if (!innocent && rule5)
+                    {
+                        players.RemoveAt(mostVoted);
+                        loopTimer = 5;
+                        state = State.CHECK_WIN;
+                    }
+
+                    else if(!rule5)
+                    {
+                        players.RemoveAt(mostVoted);
+                        loopTimer = 5;
+                        state = State.CHECK_WIN;
+                    }
+                    
+
                 }
 
                 break;
@@ -298,7 +325,7 @@ public class GameManager : MonoBehaviour
                     {
                         timerText.text = "Les lous-garous ont gagnés !";
                     }
-                    if (villageois > loupsGarous && voteLoup)
+                    if (villageois > loupsGarous && wolfHasVoted)
                     {
                         mostVoted = 0;
                         loupsGarous = 0;
@@ -319,16 +346,34 @@ public class GameManager : MonoBehaviour
                             loopTimer = 90;
                             state = State.DAY;
                         }
-                        
+                                            
                     }
-                    if (loupsGarous < villageois && !voteLoup && loupsGarous != 0)
+                    if (villageois > loupsGarous && !wolfHasVoted && loupsGarous != 0)
                     {
                         mostVoted = 0;
-                        loopTimer = 5;
                         loupsGarous = 0;
                         villageois = 0;
                         nmbOfVotes = 0;
-                        state = State.DAY_TO_NIGHT;
+                        if (rule4)
+                        {
+                            loopTimer = 90;
+                            state = State.DAY;
+                        }
+
+                        if (!needNewRule && !rule4)
+                        {
+                            loopTimer = 5;
+                            state = State.DAY_TO_NIGHT;
+                        }
+
+                        if (rule5)
+                        {
+                            rule5 = false;
+                            innocent = false;
+                            loopTimer = 5;
+                            state = State.DAY_TO_NIGHT;
+                        }
+                        
                     }
                 }
                 break;
@@ -370,15 +415,26 @@ public class GameManager : MonoBehaviour
                 //}
 
                 //Rule4
-                timerText.text = "Les loups-garous ne tuens plus..." + ((int)loopTimer).ToString();
-                rule4 = true;
-                if (loopTimer <= 0 && rule4)
+                //timerText.text = "Les loups-garous ne tuent plus..." + ((int)loopTimer).ToString();
+                //rule4 = true;
+
+                //if (loopTimer <= 0 && rule4)
+                //{
+                //    loopTimer = 30;
+                //    needNewRule = false;
+                //    state = State.DAY;
+                //}
+
+                //Rule5
+                timerText.text = "Si les villageois votent un innocent il sera épargné..." + ((int)loopTimer).ToString();
+                rule5 = true;
+
+                if (loopTimer <= 0 && rule5)
                 {
                     loopTimer = 30;
                     needNewRule = false;
                     state = State.DAY;
                 }
-
 
 
 

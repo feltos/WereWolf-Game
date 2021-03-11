@@ -109,9 +109,8 @@ public class PlayerManagement : MonoBehaviour
     void Phantom()
     {
         meshRoot.SetActive(false);
-        //collider.enabled = false;
-        //nmbOfVotesText.canvas.enabled = false;
-        nmbOfVotesText.text = "";
+        nmbOfVotes = 0;
+        nmbOfVotesText.text = nmbOfVotes.ToString();
     }
 
 
