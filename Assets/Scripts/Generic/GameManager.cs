@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,6 +29,18 @@ public class GameManager : MonoBehaviour
     string playerKill = "Nobody";
     int loupsGarous = 0;
     int villageois = 0;
+
+    
+    //Règles 
+
+    bool needNewRule = true;
+
+    bool rule1 = false; //Tout le monde voit lors de la nuit
+    bool rule2 = false; //Un joueur aléatoire est éliminé
+    bool rule3 = false; //Le temps de vote passe à 30 secondes 
+    bool rule4 = false; //Les loups-garous ne tuent qu'une fois
+    bool rule5 = false; //Si un innocent est visé il est épargné
+    bool rule6 = false; //Lors d'un vote des villageois le kill à 50& de chance de rater
 
 
     enum State
@@ -61,7 +74,7 @@ public class GameManager : MonoBehaviour
         }
 
         players[0].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.AllViaServer, 1);
-    
+        
 
         yield return new WaitForSeconds(2);
 
@@ -124,7 +137,10 @@ public class GameManager : MonoBehaviour
 
                 foreach (GameObject player in players)
                 {
-                    player.GetComponentInChildren<Camera>().fieldOfView = 0;
+                    if (!rule1)
+                    {
+                        player.GetComponentInChildren<Camera>().fieldOfView = 0;
+                    }
                 }
 
                 if(loopTimer <= 0)
@@ -132,7 +148,7 @@ public class GameManager : MonoBehaviour
                     loopTimer = 20;
                     state = State.NIGHT;
                 }
-
+                
                 break;
 
                 //les loups garous votent
@@ -169,7 +185,10 @@ public class GameManager : MonoBehaviour
                 {
                     if (player.GetComponent<PlayerManagement>().GetRoleId() == 1)
                     {
-                        player.GetComponentInChildren<Camera>().fieldOfView = 0;
+                        if (!rule1)
+                        {
+                            player.GetComponentInChildren<Camera>().fieldOfView = 0;
+                        }
                         player.GetComponent<PlayerMovement>().SetCanVote(false);
 
                     }
@@ -192,11 +211,13 @@ public class GameManager : MonoBehaviour
                 timerText.text = "En attente de la suite... " + ((int)loopTimer).ToString();
                 foreach (GameObject player in players)
                 {           
-                    player.GetComponentInChildren<Camera>().fieldOfView = 60;                  
+                    player.GetComponentInChildren<Camera>().fieldOfView = 60;
+           
                 }
 
-                for(int i = 0; i < players.Count; i++)
-                {
+              
+                for (int i = 0; i < players.Count; i++)
+                {              
                     if (players[i].GetComponent<PlayerManagement>().GetnmbOfVotes() > nmbOfVotes)
                     {
                         nmbOfVotes = players[i].GetComponent<PlayerManagement>().GetnmbOfVotes();
@@ -205,11 +226,12 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
+              
+                
+                
                 if(loopTimer <= 0)
-                {
-                    
-                    
-                    loopTimer = 10;
+                {                   
+                    loopTimer = 10;                  
                     state = State.KILL_REVEAL;
                 }
 
@@ -220,13 +242,11 @@ public class GameManager : MonoBehaviour
 
                 loopTimer -= Time.deltaTime;
                 timerText.text = playerKill + " a été tué... " + ((int)loopTimer).ToString();
+
+ 
                 players[mostVoted].GetComponent<PhotonView>().GetComponent<PlayerManagement>().SetDead();
-
-                //if (loopTimer <= 8 && loopTimer > 6)
-                //{
-
-                //}
-
+                
+                
 
                 if (loopTimer < 6 && loopTimer > 3)
                 {                   
@@ -241,9 +261,9 @@ public class GameManager : MonoBehaviour
 
                 if (loopTimer <= 0)
                 {
-                    loopTimer = 5;
                     players.RemoveAt(mostVoted);
 
+                    loopTimer = 5;
                     state = State.CHECK_WIN;
                 }
 
@@ -281,11 +301,25 @@ public class GameManager : MonoBehaviour
                     if (villageois > loupsGarous && voteLoup)
                     {
                         mostVoted = 0;
-                        loopTimer = 30;
                         loupsGarous = 0;
                         villageois = 0;
                         nmbOfVotes = 0;
-                        state = State.DAY;
+                        if (needNewRule)
+                        {
+                            loopTimer = 5;
+                            state = State.NEW_RULE;
+                        }
+                        if (rule3)
+                        {
+                            loopTimer = 30;
+                            state = State.DAY;
+                        }
+                        if(!needNewRule && !rule3)
+                        {
+                            loopTimer = 90;
+                            state = State.DAY;
+                        }
+                        
                     }
                     if (loupsGarous < villageois && !voteLoup && loupsGarous != 0)
                     {
@@ -300,6 +334,56 @@ public class GameManager : MonoBehaviour
                 break;
 
             case State.NEW_RULE:
+                loopTimer -= Time.deltaTime;
+
+                //Rule1
+                //timerText.text = "Tout le monde peut voir lors de la prochaine nuit... " + ((int)loopTimer).ToString();
+                //rule1 = true;
+
+                //if (loopTimer <= 0 && rule1)
+                //{
+                //    loopTimer = 90;
+                //    needNewRule = false;
+                //    state = State.DAY;
+                //}
+
+                //Rule2
+                //timerText.text = "Un joueur aléatoire va être éliminé... " + ((int)loopTimer).ToString();
+                //rule2 = true;
+
+                //if (loopTimer <= 0 && rule2)
+                //{                   
+                //    needNewRule = false;
+                //    loopTimer = 10;
+                //    state = State.KILL_CALCUL;
+                //}
+
+                //Rule3
+                //timerText.text = "Le temps de vote des villageois passe à 30 secondes... " + ((int)loopTimer).ToString();
+                //rule3 = true;
+
+                //if(loopTimer <= 0 && rule3)
+                //{
+                //    loopTimer = 30;
+                //    needNewRule = false;
+                //    state = State.DAY;
+                //}
+
+                //Rule4
+                timerText.text = "Les loups-garous ne tuens plus..." + ((int)loopTimer).ToString();
+                rule4 = true;
+                if (loopTimer <= 0 && rule4)
+                {
+                    loopTimer = 30;
+                    needNewRule = false;
+                    state = State.DAY;
+                }
+
+
+
+
+
+
                 break;
         }
     }
