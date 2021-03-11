@@ -54,10 +54,8 @@ public class PlayerManagement : MonoBehaviour
     void Update()
     {
         if (dead)
-        {
-            
-            PhotonView.RPC("Phantom", PhotonTargets.All);
-            PhotonView.RPC("ResetNmbOfVotes", PhotonTargets.All);
+        {            
+            PhotonView.RPC("Phantom", PhotonTargets.All);          
         }
     }
 
@@ -109,8 +107,6 @@ public class PlayerManagement : MonoBehaviour
     void Phantom()
     {
         meshRoot.SetActive(false);
-        nmbOfVotes = 0;
-        nmbOfVotesText.text = nmbOfVotes.ToString();
     }
 
 

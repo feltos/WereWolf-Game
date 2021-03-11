@@ -135,6 +135,7 @@ public class GameManager : MonoBehaviour
 
                 loopTimer -= Time.deltaTime;
                 timerText.text = "Le village s'endort... " + ((int)loopTimer).ToString();
+                rule5 = false;
 
                 foreach (GameObject player in players)
                 {
@@ -265,6 +266,7 @@ public class GameManager : MonoBehaviour
                         PlayerManagement playerManagement = player.GetComponent<PlayerManagement>();
                         PhotonView playerPhotonView = playerManagement.GetComponent<PhotonView>();
                         playerPhotonView.RPC("ResetNmbOfVotes", PhotonTargets.AllViaServer);
+                        player.GetComponent<PlayerMovement>().ResetVote();
                     }
                     
                 }
@@ -289,8 +291,7 @@ public class GameManager : MonoBehaviour
                         players.RemoveAt(mostVoted);
                         loopTimer = 5;
                         state = State.CHECK_WIN;
-                    }
-                    
+                    }                 
 
                 }
 
@@ -367,8 +368,7 @@ public class GameManager : MonoBehaviour
                         }
 
                         if (rule5)
-                        {
-                            rule5 = false;
+                        {                           
                             innocent = false;
                             loopTimer = 5;
                             state = State.DAY_TO_NIGHT;
@@ -392,7 +392,7 @@ public class GameManager : MonoBehaviour
                 //    state = State.DAY;
                 //}
 
-                //Rule2
+                //Rule2(non fonctionnel pour le moment)
                 //timerText.text = "Un joueur aléatoire va être éliminé... " + ((int)loopTimer).ToString();
                 //rule2 = true;
 
@@ -435,11 +435,6 @@ public class GameManager : MonoBehaviour
                     needNewRule = false;
                     state = State.DAY;
                 }
-
-
-
-
-
                 break;
         }
     }

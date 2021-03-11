@@ -103,13 +103,13 @@ public class PlayerMovement : Photon.MonoBehaviour
                     {
                         lastVoted = actualVoted;
                         lastVotedPV = actualVotedPV;
-                        actualVotedPV.RPC("UpNmbOfVotes", PhotonTargets.All);
+                        actualVotedPV.RPC("UpNmbOfVotes", PhotonTargets.AllViaServer);
                     }
 
                     if(lastVoted != actualVoted)
                     {
-                        lastVotedPV.RPC("MinusNmbOfVotes", PhotonTargets.All);
-                        actualVotedPV.RPC("UpNmbOfVotes", PhotonTargets.All);
+                        lastVotedPV.RPC("MinusNmbOfVotes", PhotonTargets.AllViaServer);
+                        actualVotedPV.RPC("UpNmbOfVotes", PhotonTargets.AllViaServer);
                         lastVoted = actualVoted;
                         lastVotedPV = actualVotedPV;
                     }
@@ -118,5 +118,11 @@ public class PlayerMovement : Photon.MonoBehaviour
         }
     }
 
-
+    public void ResetVote()
+    {
+        lastVoted = null;
+        actualVoted = null;
+        actualVotedPV = null;
+        lastVotedPV = null;
+    }
 }
