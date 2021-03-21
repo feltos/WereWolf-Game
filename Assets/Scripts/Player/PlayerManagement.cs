@@ -21,6 +21,7 @@ public class PlayerManagement : MonoBehaviour
     {
 
     }
+
     public void SetDead()
     {
         if (PhotonView.isMine)

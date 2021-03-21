@@ -57,4 +57,5 @@ MonoBehaviour:
   - GetPlayerName
   - ChangeName
   - Phantom
+  - SetRandomRule
   DisableAutoOpenWizard: 1

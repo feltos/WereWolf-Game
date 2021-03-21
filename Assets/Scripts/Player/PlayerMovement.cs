@@ -6,12 +6,10 @@ using UnityEngine.UIElements;
 
 public class PlayerMovement : Photon.MonoBehaviour
 {
-    float moveSpeed = 5f;
     float rotateSpeed = 300f;
     private Vector3 targetPosition;
     private Quaternion targetRotation;
     public bool UseTransformView = true;
-    private Animator animator;
     private PhotonView PhotonView;
     Rigidbody body;
     public int id;
@@ -32,7 +30,6 @@ public class PlayerMovement : Photon.MonoBehaviour
     private void Awake()
     {
         PhotonView = GetComponent<PhotonView>();
-        animator = GetComponent<Animator>();
         body = GetComponent<Rigidbody>();
         camera = this.GetComponentInChildren<Camera>();
         playerManagement = GetComponent<PlayerManagement>();
@@ -81,11 +78,6 @@ public class PlayerMovement : Photon.MonoBehaviour
     {
         float horizontal = Input.GetAxis("Mouse X");
         transform.Rotate(new Vector3(0, horizontal * rotateSpeed * Time.deltaTime, 0));
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            animator.SetTrigger("Taunt");
-        }
 
         Ray ray = camera.ScreenPointToRay(Input.mousePosition);
         if(Physics.Raycast(ray, out hit))

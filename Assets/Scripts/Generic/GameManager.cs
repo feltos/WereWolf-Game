@@ -33,15 +33,16 @@ public class GameManager : MonoBehaviour
     
     //Règles 
 
-    bool needNewRule = true;
+    bool needNewRule = false;
     bool innocent = false;
+    int randomRule = 0;
+    int spareKill;
 
     bool rule1 = false; //Tout le monde voit lors de la nuit
     bool rule2 = false; //Un joueur aléatoire est éliminé
     bool rule3 = false; //Le temps de vote passe à 30 secondes 
     bool rule4 = false; //Les loups-garous ne tuent qu'une fois
     bool rule5 = false; //Si un innocent est visé il est épargné
-    bool rule6 = false; //Lors d'un vote des villageois le kill à 50& de chance de rater
 
 
     enum State
@@ -74,9 +75,8 @@ public class GameManager : MonoBehaviour
             player.GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.AllViaServer, 2);
         }
 
-        players[0].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.AllViaServer, 1);
+        players[0].GetComponent<PlayerManagement>().GetComponent<PhotonView>().RPC("SetRoleId", PhotonTargets.AllViaServer, 1);        
         
-
         yield return new WaitForSeconds(2);
 
         loopTimer = 20;
@@ -100,6 +100,7 @@ public class GameManager : MonoBehaviour
                 foreach (GameObject player in players)
                 {
                     player.GetComponentInChildren<Camera>().fieldOfView = 60;
+                    
                 }
 
                 if (loopTimer <= 0)
@@ -134,6 +135,8 @@ public class GameManager : MonoBehaviour
             case State.DAY_TO_NIGHT:
 
                 loopTimer -= Time.deltaTime;
+                
+
                 timerText.text = "Le village s'endort... " + ((int)loopTimer).ToString();
                 rule5 = false;
 
@@ -146,7 +149,7 @@ public class GameManager : MonoBehaviour
                 }
 
                 if(loopTimer <= 0)
-                {
+                {               
                     loopTimer = 20;
                     state = State.NIGHT;
                 }
@@ -198,6 +201,10 @@ public class GameManager : MonoBehaviour
 
                 if(loopTimer <= 0)
                 {
+                    if (rule1)
+                    {
+                        rule1 = false;
+                    }
                     mostVoted = 0;
                     wolfHasVoted = true;
                     loopTimer = 5;
@@ -333,7 +340,7 @@ public class GameManager : MonoBehaviour
                         villageois = 0;
                         nmbOfVotes = 0;
                         if (needNewRule)
-                        {
+                        {                           
                             loopTimer = 5;
                             state = State.NEW_RULE;
                         }
@@ -380,61 +387,94 @@ public class GameManager : MonoBehaviour
 
             case State.NEW_RULE:
                 loopTimer -= Time.deltaTime;
+               
 
-                //Rule1
-                //timerText.text = "Tout le monde peut voir lors de la prochaine nuit... " + ((int)loopTimer).ToString();
-                //rule1 = true;
+                
 
-                //if (loopTimer <= 0 && rule1)
-                //{
-                //    loopTimer = 90;
-                //    needNewRule = false;
-                //    state = State.DAY;
-                //}
-
-                //Rule2(non fonctionnel pour le moment)
-                //timerText.text = "Un joueur aléatoire va être éliminé... " + ((int)loopTimer).ToString();
-                //rule2 = true;
-
-                //if (loopTimer <= 0 && rule2)
-                //{                   
-                //    needNewRule = false;
-                //    loopTimer = 10;
-                //    state = State.KILL_CALCUL;
-                //}
-
-                //Rule3
-                //timerText.text = "Le temps de vote des villageois passe à 30 secondes... " + ((int)loopTimer).ToString();
-                //rule3 = true;
-
-                //if(loopTimer <= 0 && rule3)
-                //{
-                //    loopTimer = 30;
-                //    needNewRule = false;
-                //    state = State.DAY;
-                //}
-
-                //Rule4
-                //timerText.text = "Les loups-garous ne tuent plus..." + ((int)loopTimer).ToString();
-                //rule4 = true;
-
-                //if (loopTimer <= 0 && rule4)
-                //{
-                //    loopTimer = 30;
-                //    needNewRule = false;
-                //    state = State.DAY;
-                //}
-
-                //Rule5
-                timerText.text = "Si les villageois votent un innocent il sera épargné..." + ((int)loopTimer).ToString();
-                rule5 = true;
-
-                if (loopTimer <= 0 && rule5)
+                if(rule1)
                 {
-                    loopTimer = 30;
-                    needNewRule = false;
-                    state = State.DAY;
+                    //Rule1
+                    timerText.text = "Tout le monde peut voir lors de la prochaine nuit... " + ((int)loopTimer).ToString();
+                    rule1 = true;
+
+                    if (loopTimer <= 0)
+                    {
+                        loopTimer = 90;
+                        needNewRule = false;
+                        state = State.DAY;
+                    }
                 }
+
+                if (rule2)
+                {
+                    //Rule2(non fonctionnel pour le moment)
+                    timerText.text = "Un joueur aléatoire va être éliminé... " + ((int)loopTimer).ToString();
+                    rule2 = true;
+
+                    if (loopTimer <= 0)
+                    {
+                        needNewRule = false;
+                        loopTimer = 60;
+                        state = State.DAY;
+                        //state = State.KILL_CALCUL;
+                    }
+                }
+
+                if (rule3)
+                {
+                    //Rule3
+                    timerText.text = "Le temps de vote des villageois passe à 30 secondes... " + ((int)loopTimer).ToString();
+                    rule3 = true;
+
+                    if (loopTimer <= 0)
+                    {
+                        loopTimer = 30;
+                        needNewRule = false;
+                        state = State.DAY;
+                    }
+                }
+
+                if (rule4)
+                {
+                    //Rule4
+                    timerText.text = "Les loups-garous ne tuent plus..." + ((int)loopTimer).ToString();
+                    rule4 = true;
+
+                    if (loopTimer <= 0)
+                    {
+                        loopTimer = 90;
+                        needNewRule = false;
+                        state = State.DAY;
+                    }
+                }
+
+                if (rule5)
+                {
+                    //Rule5
+                    timerText.text = "Si les villageois votent un innocent il sera épargné..." + ((int)loopTimer).ToString();
+                    rule5 = true;
+
+                    if (loopTimer <= 0 )
+                    {
+                        loopTimer = 90;
+                        needNewRule = false;
+                        state = State.DAY;
+                    }
+                }
+
+                //if (rule6)
+                //{
+                //    rule6 = true;
+                //    timerText.text = "Le prochain kill à 50% de chance de rater..." + ((int)loopTimer).ToString();
+
+                //    if (loopTimer <= 0)
+                //    {
+                //        loopTimer = 30;
+                //        needNewRule = false;
+                //        state = State.DAY;
+                //    }
+                //}
+
                 break;
         }
     }
